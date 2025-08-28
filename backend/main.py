@@ -8,10 +8,14 @@ import logging
 from backend.models import EstimateRequest, EstimateResult
 from backend.engine import estimate_price
 from backend.deps import get_provider_dep
+from backend import db
+import os
 
 app = FastAPI()
 
-# In-memory store for results
+db.init_db()
+
+# In-memory store for results (fallback if no DB)
 estimate_store = {}
 
 # CORS
@@ -51,12 +55,20 @@ async def post_estimate(
 ):
     result = await estimate_price(req.address, req.property, provider)
     est_id = str(uuid.uuid4())
-    estimate_store[est_id] = result.model_copy(update={"id": est_id})
-    return estimate_store[est_id]
+    result_with_id = result.model_copy(update={"id": est_id})
+    # Store in DB or memory
+    db.save_estimate(
+        id=est_id,
+        created_at=result_with_id.created_at,
+        request_json=req.model_dump(),
+        result_json=result_with_id.model_dump(),
+    )
+    return result_with_id
 
 @app.get("/estimate/{id}", response_model=EstimateResult)
 async def get_estimate(id: str):
-    result = estimate_store.get(id)
-    if not result:
+    est = db.get_estimate(id)
+    if not est:
         raise HTTPException(status_code=404, detail="Estimate not found")
-    return result
+    # Return result_json as EstimateResult
+    return EstimateResult(**est["result_json"])
