@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@shadcn/ui/badge";
 import { Skeleton } from "@shadcn/ui/skeleton";
 import { Button } from "@shadcn/ui/button";
-import { Download, CheckCircle, AlertTriangle } from "lucide-react";
+import { Download, CheckCircle, AlertTriangle, RefreshCw } from "lucide-react";
 import { useMemo } from "react";
 import { buildCalendlyUrl } from "../../../utils/buildCalendlyUrl";
 
@@ -23,7 +23,12 @@ const confidenceMap = {
 
 export default function ResultPage() {
   const { id } = useParams<{ id: string }>();
-  const { data, isLoading, isError } = useQuery({
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ["estimate", id],
     queryFn: () => fetchEstimate(id),
     retry: false,
@@ -43,8 +48,8 @@ export default function ResultPage() {
   }, [min, max, median]);
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 items-start justify-center">
-      <div className="flex-1 flex flex-col gap-8 min-w-0">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start justify-center">
+      <div className="lg:col-span-8 w-full flex flex-col gap-8 min-w-0">
         {/* Hero stats */}
         <section className="flex flex-col md:flex-row gap-6 items-center md:items-end">
           <div className="flex flex-col items-center md:items-start">
@@ -52,7 +57,12 @@ export default function ResultPage() {
             {isLoading ? (
               <Skeleton className="w-48 h-12 mb-2" />
             ) : isError ? (
-              <div className="text-red-500">Estimate not found.</div>
+              <div className="text-red-500 flex items-center gap-2" aria-live="assertive">
+                Estimate not found.
+                <Button variant="outline" size="sm" onClick={() => refetch()} aria-label="Retry">
+                  <RefreshCw className="w-4 h-4 mr-1" /> Retry
+                </Button>
+              </div>
             ) : (
               <div className="flex items-end gap-2">
                 <span className="text-4xl font-extrabold text-neutral-900">${min?.toLocaleString()} – ${max?.toLocaleString()}</span>
@@ -70,7 +80,7 @@ export default function ResultPage() {
           </div>
         </section>
         {/* Price Insights Card */}
-        <section className="bg-white/90 rounded-2xl shadow-soft p-6 border border-neutral-100 hover:shadow-lift transition-shadow">
+        <section className="bg-white/90 rounded-2xl shadow-soft p-6 border border-neutral-100 hover:shadow-lift transition-shadow" aria-label="Price Insights">
           <h3 className="font-heading text-lg font-bold mb-2">Price Insights</h3>
           {isLoading ? (
             <Skeleton className="w-full h-8 mb-4" />
@@ -96,15 +106,17 @@ export default function ResultPage() {
           )}
         </section>
         {/* Top Comps Card */}
-        <section className="bg-white/90 rounded-2xl shadow-soft p-6 border border-neutral-100 hover:shadow-lift transition-shadow">
+        <section className="bg-white/90 rounded-2xl shadow-soft p-6 border border-neutral-100 hover:shadow-lift transition-shadow" aria-label="Top Comparables">
           <h3 className="font-heading text-lg font-bold mb-2">Top Comps</h3>
           {isLoading ? (
             <Skeleton className="w-full h-32" />
-          ) : isError || !comps.length ? (
+          ) : isError ? (
             <div className="text-neutral-500">No comparable properties found.</div>
+          ) : !comps.length ? (
+            <div className="text-neutral-400">No comps available for this estimate.</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full text-xs border-separate border-spacing-y-1">
+              <table className="min-w-full text-xs border-separate border-spacing-y-1" aria-label="Comparables table">
                 <thead className="sticky top-0 bg-white/95 z-10">
                   <tr>
                     <th className="px-2 py-2 text-left font-semibold">Address</th>
@@ -135,11 +147,12 @@ export default function ResultPage() {
         </section>
       </div>
       {/* Right rail */}
-      <aside className="w-full md:w-64 flex flex-col gap-4 items-stretch">
+      <aside className="lg:col-span-4 w-full flex flex-col gap-4 items-stretch mt-8 lg:mt-0">
         <a
           href={buildCalendlyUrl(addressStr)}
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="Book a tour for this property"
         >
           <Button className="w-full h-12 text-lg font-bold shadow-lift hover:-translate-y-1 transition-transform">Book a tour</Button>
         </a>
@@ -147,6 +160,7 @@ export default function ResultPage() {
           href={`/api/pdf/${id}`}
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="Download PDF report"
         >
           <Button variant="outline" className="w-full h-12 flex items-center gap-2 shadow-soft hover:-translate-y-1 transition-transform">
             <Download className="w-5 h-5" /> Download PDF

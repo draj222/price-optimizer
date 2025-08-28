@@ -12,7 +12,7 @@ import { Badge } from "@shadcn/ui/badge";
 import { Skeleton } from "@shadcn/ui/skeleton";
 import { Button } from "@shadcn/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@shadcn/ui/tabs";
-import { Check } from "lucide-react";
+import { Check, RefreshCw } from "lucide-react";
 
 const schema = z.object({
   address: z.string().min(3, "Address required"),
@@ -39,6 +39,7 @@ const propertyTypes = [
 export default function EstimatePage() {
   const [loading, setLoading] = useState(false);
   const [skeleton, setSkeleton] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const {
     register,
@@ -61,6 +62,7 @@ export default function EstimatePage() {
   const onSubmit = async (data: FormValues) => {
     setLoading(true);
     setSkeleton(true);
+    setError(null);
     try {
       const res = await fetch("http://localhost:8000/estimate", {
         method: "POST",
@@ -86,7 +88,7 @@ export default function EstimatePage() {
       const result = await res.json();
       router.push(`/results/${result.id}`);
     } catch (e) {
-      // TODO: show error toast
+      setError("Could not get estimate. Please try again.");
     } finally {
       setLoading(false);
       setSkeleton(false);
@@ -98,99 +100,124 @@ export default function EstimatePage() {
   const tenure = watch("tenure");
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 items-start justify-center">
-      <Card className="w-full max-w-lg p-8 bg-white/80 border-0 shadow-soft relative overflow-hidden" style={{ borderRadius: "1.25rem", boxShadow: "0 2px 8px 0 rgba(0,0,0,0.04)" }}>
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <h2 className="font-heading text-2xl font-bold mb-2">Estimate your property</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <Input placeholder="Street address" {...register("address")} disabled={loading} />
-              {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address.message}</p>}
-            </div>
-            <div>
-              <Input placeholder="City" {...register("city")} disabled={loading} />
-              {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city.message}</p>}
-            </div>
-            <div>
-              <Input placeholder="State" {...register("state")} disabled={loading} />
-              {errors.state && <p className="text-xs text-red-500 mt-1">{errors.state.message}</p>}
-            </div>
-            <div>
-              <Input placeholder="ZIP" {...register("zip")} disabled={loading} />
-              {errors.zip && <p className="text-xs text-red-500 mt-1">{errors.zip.message}</p>}
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Input type="number" min={0} max={12} step={1} placeholder="Beds" {...register("beds")} disabled={loading} />
-              <p className="text-xs text-neutral-500">Bedrooms</p>
-              {errors.beds && <p className="text-xs text-red-500">{errors.beds.message}</p>}
-            </div>
-            <div>
-              <Input type="number" min={0} max={10} step={0.5} placeholder="Baths" {...register("baths")} disabled={loading} />
-              <p className="text-xs text-neutral-500">Baths (0.5 steps)</p>
-              {errors.baths && <p className="text-xs text-red-500">{errors.baths.message}</p>}
-            </div>
-            <div>
-              <Input type="number" min={300} step={1} placeholder="Sqft" {...register("sqft")} disabled={loading} />
-              <p className="text-xs text-neutral-500">Living area</p>
-              {errors.sqft && <p className="text-xs text-red-500">{errors.sqft.message}</p>}
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <Select value={watch("type")} onValueChange={v => setValue("type", v as any)} disabled={loading}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Property type" />
-              </SelectTrigger>
-              <SelectContent>
-                {propertyTypes.map(pt => (
-                  <SelectItem key={pt.value} value={pt.value}>{pt.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Tabs value={tenure} onValueChange={v => setValue("tenure", v as any)} className="ml-2">
-              <TabsList>
-                <TabsTrigger value="rent">Rent</TabsTrigger>
-                <TabsTrigger value="sale">Sale</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-          <div className="mt-4">
-            <label className="block text-sm font-medium mb-1">Condition</label>
-            <div className="flex items-center gap-2">
-              <Slider
-                min={1}
-                max={5}
-                step={1}
-                value={[condition]}
-                onValueChange={v => setValue("condition", v[0])}
-                disabled={loading}
-                className="w-48"
-              />
-              <div className="flex gap-1 ml-2">
-                {[1, 2, 3, 4, 5].map(n => (
-                  <span key={n} className={`w-6 text-center text-xs ${condition === n ? "font-bold text-accent-500" : "text-neutral-400"}`}>{n}</span>
-                ))}
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start justify-center">
+      <div className="lg:col-span-7 xl:col-span-8 w-full">
+        <Card className="w-full p-8 bg-white/80 border-0 shadow-soft relative overflow-hidden" style={{ borderRadius: "1.25rem", boxShadow: "0 2px 8px 0 rgba(0,0,0,0.04)" }}>
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} aria-describedby="form-error" aria-live="polite">
+            <h2 className="font-heading text-2xl font-bold mb-2">Estimate your property</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <label htmlFor="address" className="block text-sm font-medium mb-1">Street address</label>
+                <Input id="address" placeholder="Street address" aria-invalid={!!errors.address} aria-describedby={errors.address ? "address-error" : undefined} {...register("address")} disabled={loading} />
+                <div id="address-error" aria-live="polite" className="text-xs text-red-500 mt-1 min-h-[18px]">{errors.address?.message}</div>
+              </div>
+              <div>
+                <label htmlFor="city" className="block text-sm font-medium mb-1">City</label>
+                <Input id="city" placeholder="City" aria-invalid={!!errors.city} aria-describedby={errors.city ? "city-error" : undefined} {...register("city")} disabled={loading} />
+                <div id="city-error" aria-live="polite" className="text-xs text-red-500 mt-1 min-h-[18px]">{errors.city?.message}</div>
+              </div>
+              <div>
+                <label htmlFor="state" className="block text-sm font-medium mb-1">State</label>
+                <Input id="state" placeholder="State" aria-invalid={!!errors.state} aria-describedby={errors.state ? "state-error" : undefined} {...register("state")} disabled={loading} />
+                <div id="state-error" aria-live="polite" className="text-xs text-red-500 mt-1 min-h-[18px]">{errors.state?.message}</div>
+              </div>
+              <div>
+                <label htmlFor="zip" className="block text-sm font-medium mb-1">ZIP</label>
+                <Input id="zip" placeholder="ZIP" aria-invalid={!!errors.zip} aria-describedby={errors.zip ? "zip-error" : undefined} {...register("zip")} disabled={loading} />
+                <div id="zip-error" aria-live="polite" className="text-xs text-red-500 mt-1 min-h-[18px]">{errors.zip?.message}</div>
               </div>
             </div>
-            <p className="text-xs text-neutral-500 mt-1">1 = Needs work, 3 = Average, 5 = Excellent</p>
-            {errors.condition && <p className="text-xs text-red-500">{errors.condition.message}</p>}
-          </div>
-          <Button type="submit" className="w-full mt-4" disabled={loading}>
-            {loading ? "Estimating..." : "Get Estimate"}
-          </Button>
-        </form>
-        {skeleton && (
-          <div className="absolute inset-0 bg-white/80 flex flex-col items-center justify-center z-10">
-            <Skeleton className="w-2/3 h-8 mb-4" />
-            <Skeleton className="w-full h-6 mb-2" />
-            <Skeleton className="w-full h-6 mb-2" />
-            <Skeleton className="w-full h-6 mb-2" />
-            <Skeleton className="w-1/2 h-10 mt-4" />
-          </div>
-        )}
-      </Card>
-      <aside className="w-full max-w-xs bg-white/70 rounded-2xl shadow-soft p-6 border border-neutral-100">
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="beds" className="block text-sm font-medium mb-1">Bedrooms</label>
+                <Input id="beds" type="number" min={0} max={12} step={1} placeholder="Beds" aria-invalid={!!errors.beds} aria-describedby={errors.beds ? "beds-error" : undefined} {...register("beds")} disabled={loading} />
+                <div id="beds-error" aria-live="polite" className="text-xs text-red-500 min-h-[18px]">{errors.beds?.message}</div>
+              </div>
+              <div>
+                <label htmlFor="baths" className="block text-sm font-medium mb-1">Baths (0.5 steps)</label>
+                <Input id="baths" type="number" min={0} max={10} step={0.5} placeholder="Baths" aria-invalid={!!errors.baths} aria-describedby={errors.baths ? "baths-error" : undefined} {...register("baths")} disabled={loading} />
+                <div id="baths-error" aria-live="polite" className="text-xs text-red-500 min-h-[18px]">{errors.baths?.message}</div>
+              </div>
+              <div>
+                <label htmlFor="sqft" className="block text-sm font-medium mb-1">Living area (sqft)</label>
+                <Input id="sqft" type="number" min={300} step={1} placeholder="Sqft" aria-invalid={!!errors.sqft} aria-describedby={errors.sqft ? "sqft-error" : undefined} {...register("sqft")} disabled={loading} />
+                <div id="sqft-error" aria-live="polite" className="text-xs text-red-500 min-h-[18px]">{errors.sqft?.message}</div>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label htmlFor="type" className="block text-sm font-medium mb-1">Property type</label>
+                <Select value={watch("type")} onValueChange={v => setValue("type", v as any)} disabled={loading}>
+                  <SelectTrigger className="w-40" id="type">
+                    <SelectValue placeholder="Property type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {propertyTypes.map(pt => (
+                      <SelectItem key={pt.value} value={pt.value}>{pt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1 ml-2">
+                <label className="block text-sm font-medium mb-1">Tenure</label>
+                <Tabs value={tenure} onValueChange={v => setValue("tenure", v as any)} className="">
+                  <TabsList>
+                    <TabsTrigger value="rent">Rent</TabsTrigger>
+                    <TabsTrigger value="sale">Sale</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+            </div>
+            <div className="mt-4">
+              <label htmlFor="condition" className="block text-sm font-medium mb-1">Condition</label>
+              <div className="flex items-center gap-2">
+                <Slider
+                  min={1}
+                  max={5}
+                  step={1}
+                  value={[condition]}
+                  onValueChange={v => setValue("condition", v[0])}
+                  disabled={loading}
+                  className="w-48"
+                  id="condition"
+                  aria-valuenow={condition}
+                  aria-valuemin={1}
+                  aria-valuemax={5}
+                  aria-label="Condition"
+                />
+                <div className="flex gap-1 ml-2">
+                  {[1, 2, 3, 4, 5].map(n => (
+                    <span key={n} className={`w-6 text-center text-xs ${condition === n ? "font-bold text-accent-500" : "text-neutral-400"}`}>{n}</span>
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-neutral-500 mt-1">1 = Needs work, 3 = Average, 5 = Excellent</p>
+              <div id="condition-error" aria-live="polite" className="text-xs text-red-500 min-h-[18px]">{errors.condition?.message}</div>
+            </div>
+            <Button type="submit" className="w-full mt-4" disabled={loading} aria-busy={loading} aria-live="polite">
+              {loading ? "Estimating..." : "Get Estimate"}
+            </Button>
+            {error && (
+              <div className="mt-2 text-red-600 flex items-center gap-2" id="form-error" aria-live="assertive">
+                {error}
+                <Button type="button" variant="outline" size="sm" onClick={handleSubmit(onSubmit)} className="ml-2" disabled={loading} aria-label="Retry">
+                  <RefreshCw className="w-4 h-4 mr-1" /> Retry
+                </Button>
+              </div>
+            )}
+          </form>
+          {skeleton && (
+            <div className="absolute inset-0 bg-white/80 flex flex-col items-center justify-center z-10" aria-hidden="true">
+              <Skeleton className="w-2/3 h-8 mb-4" />
+              <Skeleton className="w-full h-6 mb-2" />
+              <Skeleton className="w-full h-6 mb-2" />
+              <Skeleton className="w-full h-6 mb-2" />
+              <Skeleton className="w-1/2 h-10 mt-4" />
+            </div>
+          )}
+        </Card>
+      </div>
+      <aside className="lg:col-span-5 xl:col-span-4 w-full bg-white/70 rounded-2xl shadow-soft p-6 border border-neutral-100 mt-8 lg:mt-0">
         <h3 className="font-heading text-lg font-bold mb-4">What we’ll compute</h3>
         <ul className="space-y-3">
           <li className="flex items-center gap-2"><Check className="w-4 h-4 text-accent-500" /> Market value estimate</li>
