@@ -2,6 +2,10 @@ import "@fontsource/inter/variable.css";
 import "@fontsource/sora/variable.css";
 import type { Metadata } from "next";
 import "./globals.css";
+import { Inter, Sora } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const sora = Sora({ subsets: ["latin"], variable: "--font-sora" });
 
 export const metadata: Metadata = {
   title: "Price Optimizer",
@@ -15,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased bg-gradient-to-br from-[#f8fafc] via-[#e0e7ef] to-[#f1f5f9] min-h-screen text-neutral-900">
+      <body className={`${inter.variable} ${sora.variable} font-sans antialiased bg-gradient-to-br from-[#f8fafc] via-[#e0e7ef] to-[#f1f5f9] min-h-screen text-neutral-900`}>
         <nav className="sticky top-0 z-30 w-full backdrop-blur bg-white/70 border-b border-neutral-200 shadow-sm">
           <div className="mx-auto max-w-[1200px] px-6 py-3 flex items-center justify-between">
             <span className="font-bold text-lg tracking-tight">Price Optimizer</span>
