@@ -143,9 +143,15 @@ export default function ResultPage() {
         >
           <Button className="w-full h-12 text-lg font-bold shadow-lift hover:-translate-y-1 transition-transform">Book a tour</Button>
         </a>
-        <Button variant="outline" className="w-full h-12 flex items-center gap-2 shadow-soft hover:-translate-y-1 transition-transform">
-          <Download className="w-5 h-5" /> Download PDF
-        </Button>
+        <a
+          href={`/api/pdf/${id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Button variant="outline" className="w-full h-12 flex items-center gap-2 shadow-soft hover:-translate-y-1 transition-transform">
+            <Download className="w-5 h-5" /> Download PDF
+          </Button>
+        </a>
       </aside>
     </div>
   );
