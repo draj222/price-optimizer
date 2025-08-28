@@ -28,3 +28,19 @@ npm run dev
 - Python: black, isort, pytest
 - Node: eslint, prettier, shadcn/ui, Tailwind CSS
 - Pre-commit hooks: see `.pre-commit-config.yaml`
+
+## Testing
+
+### Backend
+
+```bash
+cd backend
+PYTHONPATH=. pytest
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm run test
+```

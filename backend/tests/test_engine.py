@@ -3,6 +3,8 @@ import asyncio
 from backend.models import AddressSpec, PropertySpec
 from backend.providers.fake import FakeProvider
 from backend.engine import estimate_price
+from backend.main import app
+from fastapi.testclient import TestClient
 
 @pytest.mark.asyncio
 async def test_estimate_price_determinism():
@@ -40,3 +42,19 @@ async def test_estimate_price_monotonicity_sqft():
     est_mid = await estimate_price(address, prop_mid, provider)
     est_large = await estimate_price(address, prop_large, provider)
     assert est_small.point_estimate < est_mid.point_estimate < est_large.point_estimate
+
+def test_post_get_roundtrip():
+    client = TestClient(app)
+    req = {
+        "address": {"street": "1 Main St", "city": "Testville", "state": "CA", "zip": "12345"},
+        "property": {"beds": 3, "baths": 2.0, "sqft": 1200, "type": "condo", "condition": 3, "tenure": "sale"}
+    }
+    resp = client.post("/estimate", json=req)
+    assert resp.status_code == 200
+    data = resp.json()
+    est_id = data["id"]
+    get_resp = client.get(f"/estimate/{est_id}")
+    assert get_resp.status_code == 200
+    data2 = get_resp.json()
+    assert data2["id"] == est_id
+    assert data2["point_estimate"] == data["point_estimate"]
