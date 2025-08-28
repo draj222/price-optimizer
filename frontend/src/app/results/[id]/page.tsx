@@ -6,6 +6,7 @@ import { Skeleton } from "@shadcn/ui/skeleton";
 import { Button } from "@shadcn/ui/button";
 import { Download, CheckCircle, AlertTriangle } from "lucide-react";
 import { useMemo } from "react";
+import { buildCalendlyUrl } from "../../../utils/buildCalendlyUrl";
 
 function fetchEstimate(id: string) {
   return fetch(`http://localhost:8000/estimate/${id}`).then(res => {
@@ -33,6 +34,7 @@ export default function ResultPage() {
   const max = data?.range_high;
   const median = data?.point_estimate;
   const conf = data?.confidence;
+  const addressStr = comps[0]?.address || "property";
 
   // For range bar
   const pct = useMemo(() => {
@@ -134,7 +136,13 @@ export default function ResultPage() {
       </div>
       {/* Right rail */}
       <aside className="w-full md:w-64 flex flex-col gap-4 items-stretch">
-        <Button className="w-full h-12 text-lg font-bold shadow-lift hover:-translate-y-1 transition-transform">Book a tour</Button>
+        <a
+          href={buildCalendlyUrl(addressStr)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Button className="w-full h-12 text-lg font-bold shadow-lift hover:-translate-y-1 transition-transform">Book a tour</Button>
+        </a>
         <Button variant="outline" className="w-full h-12 flex items-center gap-2 shadow-soft hover:-translate-y-1 transition-transform">
           <Download className="w-5 h-5" /> Download PDF
         </Button>
