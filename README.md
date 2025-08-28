@@ -44,3 +44,20 @@ PYTHONPATH=. pytest
 cd frontend
 npm run test
 ```
+
+## Running with Docker
+
+```bash
+cd backend
+cp ../.env.example .env
+# Edit .env as needed
+# Build and run
+sudo docker build -t price-optimizer-backend .
+sudo docker run --env-file .env -p 8000:8000 price-optimizer-backend
+```
+
+## Deployment
+See [DEPLOY.md](./DEPLOY.md) for Render, Fly, Neon, Supabase, and Vercel instructions.
+
+## Environment Variables
+See [.env.example](./.env.example) for required variables for backend and frontend.
