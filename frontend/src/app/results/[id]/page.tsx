@@ -1,9 +1,9 @@
 "use client";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Badge } from "@shadcn/ui/badge";
-import { Skeleton } from "@shadcn/ui/skeleton";
-import { Button } from "@shadcn/ui/button";
+import { Badge } from "../../../components/ui/badge";
+import { Skeleton } from "../../../components/ui/skeleton";
+import { Button } from "../../../components/ui/button";
 import { Download, CheckCircle, AlertTriangle, RefreshCw } from "lucide-react";
 import { useMemo } from "react";
 import { buildCalendlyUrl } from "../../../utils/buildCalendlyUrl";

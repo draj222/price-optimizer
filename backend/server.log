@@ -1,0 +1,17 @@
+INFO:     Will watch for changes in these directories: ['/Users/dheeraj/Documents/Price Optimizer/price-optimizer/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [49637] using StatReload
+INFO:     Started server process [49708]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:62702 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62704 - "POST /estimate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62738 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62738 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62738 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:63212 - "OPTIONS /estimate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63212 - "POST /estimate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63374 - "POST /estimate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63414 - "GET /estimate/a516c1be-f2a6-4930-9be6-29769c5ba304 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63453 - "POST /estimate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63453 - "GET /estimate/835bc82e-50e3-4a6c-a54c-2124bb075b0e HTTP/1.1" 200 OK

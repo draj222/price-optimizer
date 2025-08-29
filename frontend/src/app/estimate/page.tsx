@@ -4,14 +4,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card } from "@shadcn/ui/card";
-import { Input } from "@shadcn/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shadcn/ui/select";
-import { Slider } from "@shadcn/ui/slider";
-import { Badge } from "@shadcn/ui/badge";
-import { Skeleton } from "@shadcn/ui/skeleton";
-import { Button } from "@shadcn/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@shadcn/ui/tabs";
+import { Card } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import { Slider } from "../../components/ui/slider";
+import { Badge } from "../../components/ui/badge";
+import { Skeleton } from "../../components/ui/skeleton";
+import { Button } from "../../components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { Check, RefreshCw } from "lucide-react";
 
 const schema = z.object({

@@ -5,10 +5,10 @@ from starlette.middleware.base import BaseHTTPMiddleware
 import time
 import uuid
 import logging
-from backend.models import EstimateRequest, EstimateResult
-from backend.engine import estimate_price
-from backend.deps import get_provider_dep
-from backend import db
+from models import EstimateRequest, EstimateResult
+from engine import estimate_price
+from deps import get_provider_dep
+import db
 import os
 
 app = FastAPI()

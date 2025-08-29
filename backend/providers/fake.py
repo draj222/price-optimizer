@@ -1,7 +1,7 @@
 import random
 from datetime import date, timedelta
 from typing import List
-from ..models import AddressSpec, PropertySpec, Comp
+from models import AddressSpec, PropertySpec, Comp
 from .base import CompProvider
 
 class FakeProvider:

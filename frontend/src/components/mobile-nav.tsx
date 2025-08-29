@@ -1,5 +1,5 @@
 "use client";
-import { Sheet, SheetContent, SheetTrigger } from "@shadcn/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";

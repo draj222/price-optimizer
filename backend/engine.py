@@ -1,7 +1,7 @@
 import math
 from typing import List
-from backend.models import AddressSpec, PropertySpec, EstimateResult, Comp
-from backend.providers.base import CompProvider
+from models import AddressSpec, PropertySpec, EstimateResult, Comp
+from providers.base import CompProvider
 from datetime import datetime, date
 
 async def estimate_price(address: AddressSpec, prop: PropertySpec, provider: CompProvider) -> EstimateResult:

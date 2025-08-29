@@ -1,5 +1,5 @@
 from typing import Protocol, List
-from ..models import AddressSpec, PropertySpec, Comp
+from models import AddressSpec, PropertySpec, Comp
 
 class CompProvider(Protocol):
     async def get_comps(
